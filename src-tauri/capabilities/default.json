@@ -3,5 +3,9 @@
   "identifier": "default",
   "description": "主窗口与提醒弹窗的默认权限",
   "windows": ["main", "remind"],
-  "permissions": ["core:default"]
+  "permissions": [
+    "core:default",
+    "core:window:allow-set-size",
+    "core:window:allow-hide"
+  ]
 }

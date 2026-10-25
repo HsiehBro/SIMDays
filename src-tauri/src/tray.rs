@@ -1,5 +1,4 @@
-use crate::state::{self, Status};
-use crate::commands;
+use crate::state::{self, AppStatus};
 use tauri::{
     image::Image,
     menu::{Menu, MenuItem, PredefinedMenuItem},
@@ -22,12 +21,19 @@ fn icon_for(level: &str) -> tauri::Result<Image<'static>> {
     Image::from_bytes(bytes).map(|img| img.to_owned())
 }
 
-fn tooltip_for(st: &Status) -> String {
-    match st.level.as_str() {
-        "due" => "SIMDays：今天到期，请重置手机卡".into(),
-        "overdue" => format!("SIMDays：已超期 {} 天", -st.days_left),
-        "soon" => format!("SIMDays：{} 天后到期", st.days_left),
-        _ => format!("SIMDays：还有 {} 天重置", st.days_left),
+/// 托盘只反映全局最差状态：有多张卡需要关注时，显示最紧急一张的信息
+fn tooltip_for(st: &AppStatus) -> String {
+    match state::worst_status(&st.cards) {
+        None => "SIMDays：还没有添加手机卡".into(),
+        Some(w) => {
+            let tail = match w.level.as_str() {
+                "due" => "今天到期，请重置".to_string(),
+                "overdue" => format!("已超期 {} 天", -w.days_left),
+                "soon" => format!("{} 天后到期", w.days_left),
+                _ => format!("还有 {} 天重置", w.days_left),
+            };
+            format!("SIMDays · {}：{}", w.name, tail)
+        }
     }
 }
 
@@ -53,15 +59,12 @@ fn toggle_main(app: &AppHandle) {
 
 pub fn create(app: &AppHandle) -> tauri::Result<()> {
     let open = MenuItem::with_id(app, "open", "打开主界面", true, None::<&str>)?;
-    let reset = MenuItem::with_id(app, "reset", "今天已重置", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
-    let menu = Menu::with_items(
-        app,
-        &[&open, &reset, &PredefinedMenuItem::separator(app)?, &quit],
-    )?;
+    let menu = Menu::with_items(app, &[&open, &PredefinedMenuItem::separator(app)?, &quit])?;
 
-    let st = state::current_status(app);
-    let icon = icon_for(&st.level)?;
+    let st = state::current_app_status(app);
+    let level = state::worst_status(&st.cards).map(|w| w.level).unwrap_or_default();
+    let icon = icon_for(&level)?;
 
     TrayIconBuilder::with_id(TRAY_ID)
         .icon(icon)
@@ -70,9 +73,6 @@ pub fn create(app: &AppHandle) -> tauri::Result<()> {
         .tooltip(tooltip_for(&st))
         .on_menu_event(|app, event| match event.id.as_ref() {
             "open" => show_main(app),
-            "reset" => {
-                let _ = commands::do_reset(app);
-            }
             "quit" => app.exit(0),
             _ => {}
         })
@@ -90,9 +90,12 @@ pub fn create(app: &AppHandle) -> tauri::Result<()> {
     Ok(())
 }
 
-pub fn update(app: &AppHandle, st: &Status) {
+pub fn update(app: &AppHandle, st: &AppStatus) {
     let Some(tray) = app.tray_by_id(TRAY_ID) else { return };
-    if let Ok(icon) = icon_for(&st.level) {
+    let level = state::worst_status(&st.cards)
+        .map(|w| w.level)
+        .unwrap_or_default();
+    if let Ok(icon) = icon_for(&level) {
         let _ = tray.set_icon(Some(icon));
     }
     let _ = tray.set_tooltip(Some(tooltip_for(st)));

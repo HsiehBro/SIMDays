@@ -7,64 +7,106 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- 首次设置 -->
-    <div id="setup-view" class="view hidden">
+    <!-- 空状态：一张卡都没有 -->
+    <div id="empty-view" class="view hidden">
       <div class="setup-head">
         <div class="logo">📅</div>
         <h1 class="app-title">SIMDays</h1>
-        <p class="hint">手机卡每隔一段时间需要手动重置。<br />告诉我<strong>上次重置的日期</strong>和<strong>重置周期</strong>，我来帮你倒计时。</p>
+        <p class="hint">手机卡每隔一段时间需要手动重置。<br />为每张卡记录<strong>上次重置的日期</strong>和<strong>重置周期</strong>，我来帮你逐张倒计时。</p>
       </div>
-      <label class="field">
-        <span>上次重置日期</span>
-        <input type="date" id="setup-date" />
-      </label>
-      <label class="field">
-        <span>重置周期（天）</span>
-        <input type="number" id="setup-interval" min="1" max="3650" value="180" />
-      </label>
-      <p id="setup-error" class="error hidden"></p>
-      <button id="setup-btn" class="btn primary big">开始使用</button>
+      <button id="empty-add" class="btn primary big">＋&nbsp; 添加第一张手机卡</button>
     </div>
 
-    <!-- 主界面 -->
-    <div id="main-view" class="view hidden">
-      <div class="card" id="status-card">
-        <div class="chip" id="status-chip">状态正常</div>
-        <div class="count">
-          <span id="days">--</span><span class="unit" id="days-unit">天</span>
+    <!-- 主界面：顶栏 + 列表/轮播双视图 -->
+    <div id="app-view" class="view hidden">
+      <header class="topbar">
+        <div class="topbar-title">
+          <b>我的卡</b>
+          <span id="card-count" class="count-badge">0</span>
         </div>
-        <div class="count-label" id="count-label">距下次重置还有</div>
+        <div class="topbar-actions">
+          <button id="view-list-btn" class="icon-btn view-toggle" title="列表视图">☰</button>
+          <button id="view-carousel-btn" class="icon-btn view-toggle" title="卡片视图">▢</button>
+          <button id="add-card-btn" class="icon-btn add-btn" title="添加手机卡">＋</button>
+          <button id="open-settings" class="icon-btn" title="设置">⚙</button>
+        </div>
+      </header>
+
+      <!-- 列表视图 -->
+      <div id="list-view" class="pane">
+        <div id="card-list" class="card-list"></div>
       </div>
 
-      <div class="info">
-        <div class="row"><span>下次重置</span><b id="next-date">--</b></div>
-        <div class="row"><span>上次重置</span><b id="last-date">--</b></div>
-        <div class="row"><span>重置周期</span><b id="interval-text">--</b></div>
+      <!-- 轮播视图（大数字） -->
+      <div id="carousel-view" class="pane hidden">
+        <div class="card" id="hero-card">
+          <div class="hero-head">
+            <button id="hero-prev" class="icon-btn hero-arrow" title="上一张">‹</button>
+            <div class="hero-name">
+              <span id="hero-icon">📱</span>
+              <b id="hero-name">--</b>
+            </div>
+            <button id="hero-next" class="icon-btn hero-arrow" title="下一张">›</button>
+          </div>
+          <div class="chip" id="hero-chip">状态正常</div>
+          <div class="count">
+            <span id="hero-days">--</span><span class="unit" id="hero-unit">天</span>
+          </div>
+          <div class="count-label" id="hero-label">距下次重置还有</div>
+        </div>
+
+        <div class="info">
+          <div class="row"><span>下次重置</span><b id="hero-next-date">--</b></div>
+          <div class="row"><span>上次重置</span><b id="hero-last-date">--</b></div>
+          <div class="row"><span>重置周期</span><b id="hero-interval-text">--</b></div>
+        </div>
+
+        <button id="hero-reset" class="btn primary big">✓&nbsp; 今天已重置</button>
+        <button id="hero-edit" class="btn ghost">⚙&nbsp; 编辑这张卡</button>
+        <div id="hero-dots" class="dots"></div>
       </div>
 
-      <button id="reset-btn" class="btn primary big">✓&nbsp; 今天已重置</button>
-      <button id="toggle-settings" class="btn ghost">⚙&nbsp; 设置</button>
       <div id="toast" class="toast hidden"></div>
     </div>
 
-    <!-- 设置面板（覆盖层） -->
+    <!-- 添加/编辑卡（覆盖层） -->
+    <div id="card-form" class="sheet hidden">
+      <div class="sheet-head">
+        <b id="form-title">添加手机卡</b>
+        <button id="close-form" class="icon-btn">✕</button>
+      </div>
+      <label class="field">
+        <span>卡名称</span>
+        <input type="text" id="f-name" maxlength="20" placeholder="如：移动保号卡" />
+      </label>
+      <div class="field">
+        <span>图标</span>
+        <div id="f-icons" class="emoji-picker"></div>
+      </div>
+      <label class="field">
+        <span>上次重置日期</span>
+        <input type="date" id="f-date" />
+      </label>
+      <label class="field">
+        <span>重置周期（天）<i>1 ~ 3650</i></span>
+        <input type="number" id="f-interval" min="1" max="3650" value="180" />
+      </label>
+      <label class="field">
+        <span>提前提醒（天）<i>到期前几天开始弹窗，0 为仅当天提醒</i></span>
+        <input type="number" id="f-remind" min="0" max="30" value="3" />
+      </label>
+      <p id="form-error" class="error hidden"></p>
+      <button id="save-card-btn" class="btn primary big">保存</button>
+      <button id="delete-card-btn" class="btn danger hidden">🗑&nbsp; 删除这张卡</button>
+      <p id="form-msg" class="save-msg hidden">✓ 已保存</p>
+    </div>
+
+    <!-- 设置（全局，覆盖层） -->
     <div id="settings" class="sheet hidden">
       <div class="sheet-head">
         <b>设置</b>
         <button id="close-settings" class="icon-btn">✕</button>
       </div>
-      <label class="field">
-        <span>上次重置日期</span>
-        <input type="date" id="set-last-reset" />
-      </label>
-      <label class="field">
-        <span>重置周期（天）<i>1 ~ 3650</i></span>
-        <input type="number" id="set-interval" min="1" max="3650" />
-      </label>
-      <label class="field">
-        <span>提前提醒（天）<i>到期前几天开始弹窗，0 为仅当天提醒</i></span>
-        <input type="number" id="set-remind" min="0" max="30" />
-      </label>
       <label class="field check">
         <input type="checkbox" id="set-autostart" />
         <span>开机自动启动</span>

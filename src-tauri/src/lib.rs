@@ -59,10 +59,13 @@ pub fn run() {
             None,
         ))
         .invoke_handler(tauri::generate_handler![
-            commands::get_status,
-            commands::setup,
-            commands::reset_today,
-            commands::save_settings,
+            commands::get_cards,
+            commands::get_due_cards,
+            commands::add_card,
+            commands::reset_card,
+            commands::save_card,
+            commands::delete_card,
+            commands::set_view_mode,
             commands::dismiss_reminder,
             commands::get_autostart,
             commands::set_autostart,
@@ -105,8 +108,7 @@ pub fn run() {
                 let h = handle.clone();
                 let _ = h.clone().run_on_main_thread(move || {
                     remind::check_and_remind(&h);
-                    let st = state::current_status(&h);
-                    tray::update(&h, &st);
+                    tray::update(&h, &state::current_app_status(&h));
                 });
             });
 

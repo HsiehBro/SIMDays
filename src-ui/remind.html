@@ -8,13 +8,12 @@
   </head>
   <body class="popup">
     <div class="popup-card">
-      <div class="popup-icon" id="r-icon">🔔</div>
-      <div class="popup-title" id="r-title">手机卡需要重置了</div>
-      <div class="popup-sub" id="r-sub">--</div>
-      <div class="popup-actions">
-        <button id="r-reset" class="btn primary">✓ 今天已重置</button>
-        <button id="r-dismiss" class="btn ghost">知道了</button>
+      <div class="popup-head">
+        <div class="popup-icon" id="r-icon">🔔</div>
+        <div class="popup-title" id="r-title">手机卡需要重置了</div>
       </div>
+      <div id="r-list" class="popup-list"></div>
+      <button id="r-dismiss" class="btn ghost popup-dismiss">知道了</button>
     </div>
     <script src="remind.js"></script>
   </body>
