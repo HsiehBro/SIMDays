@@ -278,6 +278,7 @@ $("save-card-btn").addEventListener("click", async () => {
         icon: selectedEmoji,
         intervalDays: interval,
         remindBeforeDays: remind,
+        lastReset: date,
       });
       toast("已保存");
     } else {
