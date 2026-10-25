@@ -11,3 +11,6 @@ src-tauri/gen/
 # GUI 测试产物（本地测试环境与截图证据，不入库）
 gui-test-harness/
 gui-test-screenshots/
+
+# 临时验证脚本与截图
+.zcode_tmp/
