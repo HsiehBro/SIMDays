@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIMDays</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- 首次设置 -->
+    <div id="setup-view" class="view hidden">
+      <div class="setup-head">
+        <div class="logo">📅</div>
+        <h1 class="app-title">SIMDays</h1>
+        <p class="hint">手机卡每隔一段时间需要手动重置。<br />告诉我<strong>上次重置的日期</strong>和<strong>重置周期</strong>，我来帮你倒计时。</p>
+      </div>
+      <label class="field">
+        <span>上次重置日期</span>
+        <input type="date" id="setup-date" />
+      </label>
+      <label class="field">
+        <span>重置周期（天）</span>
+        <input type="number" id="setup-interval" min="1" max="3650" value="180" />
+      </label>
+      <p id="setup-error" class="error hidden"></p>
+      <button id="setup-btn" class="btn primary big">开始使用</button>
+    </div>
+
+    <!-- 主界面 -->
+    <div id="main-view" class="view hidden">
+      <div class="card" id="status-card">
+        <div class="chip" id="status-chip">状态正常</div>
+        <div class="count">
+          <span id="days">--</span><span class="unit" id="days-unit">天</span>
+        </div>
+        <div class="count-label" id="count-label">距下次重置还有</div>
+      </div>
+
+      <div class="info">
+        <div class="row"><span>下次重置</span><b id="next-date">--</b></div>
+        <div class="row"><span>上次重置</span><b id="last-date">--</b></div>
+        <div class="row"><span>重置周期</span><b id="interval-text">--</b></div>
+      </div>
+
+      <button id="reset-btn" class="btn primary big">✓&nbsp; 今天已重置</button>
+      <button id="toggle-settings" class="btn ghost">⚙&nbsp; 设置</button>
+      <div id="toast" class="toast hidden"></div>
+    </div>
+
+    <!-- 设置面板（覆盖层） -->
+    <div id="settings" class="sheet hidden">
+      <div class="sheet-head">
+        <b>设置</b>
+        <button id="close-settings" class="icon-btn">✕</button>
+      </div>
+      <label class="field">
+        <span>上次重置日期</span>
+        <input type="date" id="set-last-reset" />
+      </label>
+      <label class="field">
+        <span>重置周期（天）<i>1 ~ 3650</i></span>
+        <input type="number" id="set-interval" min="1" max="3650" />
+      </label>
+      <label class="field">
+        <span>提前提醒（天）<i>到期前几天开始弹窗，0 为仅当天提醒</i></span>
+        <input type="number" id="set-remind" min="0" max="30" />
+      </label>
+      <label class="field check">
+        <input type="checkbox" id="set-autostart" />
+        <span>开机自动启动</span>
+      </label>
+      <button id="save-settings" class="btn primary">保存设置</button>
+      <p id="settings-msg" class="save-msg hidden">✓ 已保存</p>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>

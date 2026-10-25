@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "SIMDays",
+  "version": "1.0.0",
+  "identifier": "com.simdays.app",
+  "build": {
+    "frontendDist": "../src-ui"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "SIMDays — 手机卡重置倒计时",
+        "width": 380,
+        "height": 660,
+        "minWidth": 360,
+        "minHeight": 560,
+        "center": true
+      },
+      {
+        "label": "remind",
+        "url": "remind.html",
+        "title": "SIMDays 提醒",
+        "width": 340,
+        "height": 220,
+        "visible": false,
+        "decorations": false,
+        "resizable": false,
+        "skipTaskbar": true,
+        "alwaysOnTop": true,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": false,
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ]
+  }
+}

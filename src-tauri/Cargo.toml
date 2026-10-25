@@ -1,0 +1,25 @@
+[package]
+name = "simdays"
+version = "1.0.0"
+edition = "2021"
+description = "SIMDays — 手机卡重置倒计时小工具"
+
+[lib]
+name = "simdays_lib"
+crate-type = ["rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+tauri-plugin-autostart = "2"
+tauri-plugin-single-instance = "2"
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
